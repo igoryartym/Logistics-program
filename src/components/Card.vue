@@ -1,5 +1,5 @@
 <template>
-  <div class="card" @click="redirecttodetelvue">
+  <div class="card" @click="openDetailView">
     <div class="price-info" :style="{ backgroundColor: '#ffeb3b' }">
       <p>{{ place.price }} ₴</p>
       <div v-if="distance !== null" class="distance-info">
@@ -15,19 +15,10 @@
 
 <script>
 export default {
-  name: "DistanceCalculator",
+  name: "Card",
   props: {
     place: {
       type: Object,
-
-      required: true,
-    },
-    weight: {
-      type: Number,
-      required: true,
-    },
-    cargo: {
-      type: String,
       required: true,
     },
     map: {
@@ -46,22 +37,23 @@ export default {
       distance: null,
     };
   },
-
   methods: {
-    redirecttodetelvue() {
-      console.log(this.userLocation),
-        console.log(this.map),
-        this.$router.push({
-          name: "DetailView",
-          params: {
-            startLocation: this.place.startLocation,
-            endLocation: this.place.endLocation,
-            weight: this.place.weight,
-            cargo: this.place.cargo,
-            price: this.place.price,
-            description: this.place.description,
-          },
-        });
+    openDetailView() {
+      this.$router.push({
+        name: "DetailView",
+        params: {
+          id: this.place.id,
+          startLocation: this.place.startLocation,
+          endLocation: this.place.endLocation,
+          weight: this.place.weight,
+          cargo: this.place.cargo,
+          price: this.place.price,
+          description: this.place.description,
+        },
+      });
+    },
+    acceptOrder() {
+      this.$emit("orderAccepted", this.place.id);
     },
     calculateDistance() {
       if (!this.userLocation) return;
@@ -151,5 +143,19 @@ export default {
 
 .distance-info {
   font-weight: bold;
+}
+
+button {
+  background-color: #4caf50; /* Зелений колір кнопки */
+  color: white; /* Колір тексту */
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #45a049; /* Темніший зелений при наведенні */
+  }
 }
 </style>

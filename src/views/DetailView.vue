@@ -12,13 +12,19 @@
       <p>Ціна: {{ price }} ₴</p>
       <p>Вантаж: {{ cargo }}, {{ weight }} кг</p>
       <p>Опис: {{ description }}</p>
-      <button @click="acceptOrder" class="accept-button">Прийняти</button>
+      <button
+        @click="acceptOrder"
+        class="accept-button"
+        :disabled="orderAccepted"
+      >
+        {{ orderAccepted ? "Замовлення прийнято" : "Прийняти" }}
+      </button>
     </div>
   </div>
 </template>
 
 <script>
-import { store } from "./store";
+import { mapActions } from "vuex";
 
 export default {
   name: "DetailView",
@@ -27,19 +33,21 @@ export default {
       directionsRendererToStart: null,
       directionsRendererToEnd: null,
       directionsService: null,
-      startLocation: this.$route.params.startLocation,
-      endLocation: this.$route.params.endLocation,
-      weight: this.$route.params.weight,
-      cargo: this.$route.params.cargo,
-      price: this.$route.params.price,
-      description: this.$route.params.description,
+      startLocation: this.$route.params.startLocation || "",
+      endLocation: this.$route.params.endLocation || "",
+      weight: this.$route.params.weight || 0,
+      cargo: this.$route.params.cargo || "",
+      price: this.$route.params.price || 0,
+      description: this.$route.params.description || "",
       distanceToStart: null,
       distanceToEnd: null,
       userLocation: null,
       map: null,
+      orderAccepted: false,
     };
   },
   methods: {
+    ...mapActions(["acceptOrder"]),
     calculateAndDisplayRoute(renderer, origin, destination, callback) {
       this.directionsService.route(
         {
@@ -132,16 +140,57 @@ export default {
       });
     },
     acceptOrder() {
-      const now = new Date();
-      const order = {
-        startLocation: this.startLocation,
-        endLocation: this.endLocation,
-        date: now.toLocaleDateString(),
-        time: now.toLocaleTimeString(),
-        status: "Прийнято",
-      };
-      store.addOrder(order);
-      alert("Замовлення прийнято");
+      if (!this.userLocation) {
+        alert("Не вдалося отримати вашу геолокацію");
+        return;
+      }
+
+      if (this.orderAccepted) {
+        return;
+      }
+
+      const start = `${this.userLocation.lat},${this.userLocation.lng}`;
+      const endStart = this.startLocation.replace(/ /g, "+");
+      const endEnd = this.endLocation.replace(/ /g, "+");
+
+      this.directionsService.route(
+        {
+          origin: start,
+          destination: endStart,
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (responseStart, statusStart) => {
+          if (statusStart === "OK") {
+            this.directionsService.route(
+              {
+                origin: endStart,
+                destination: endEnd,
+                travelMode: google.maps.TravelMode.DRIVING,
+              },
+              (responseEnd, statusEnd) => {
+                if (statusEnd === "OK") {
+                  const url = `https://www.google.com/maps/dir/?api=1&origin=${start}&destination=${endEnd}&waypoints=${endStart}&travelmode=driving`;
+                  window.open(url, "_blank");
+                  this.orderAccepted = true;
+                  this.acceptOrder({
+                    id: this.$route.params.id,
+                    startLocation: this.startLocation,
+                    endLocation: this.endLocation,
+                    weight: this.weight,
+                    cargo: this.cargo,
+                    price: this.price,
+                    description: this.description,
+                  });
+                } else {
+                  window.alert("Directions request failed due to " + statusEnd);
+                }
+              }
+            );
+          } else {
+            window.alert("Directions request failed due to " + statusStart);
+          }
+        }
+      );
     },
   },
   async mounted() {
@@ -175,11 +224,7 @@ export default {
   background-color: #37474f;
   color: #ffffff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
   flex: 1 1 35%;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -194,6 +239,7 @@ export default {
   margin: 10px 0;
   font-size: 1rem;
 }
+
 .accept-button {
   color: white;
   border: none;
@@ -207,14 +253,22 @@ export default {
   padding: 10px 20px;
   border-radius: 10px;
   transition: background-color 0.3s, color 0.3s;
-  cursor: pointer;
   font-weight: bold;
+
   &:hover {
     background-color: #4caf50;
     color: white;
   }
+
   &:active {
     background-color: #38833a;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: gray;
+    border-color: gray;
+    color: white;
   }
 }
 </style>

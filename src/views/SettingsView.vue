@@ -21,19 +21,40 @@
             />
           </div>
           <div class="form-group">
-            <label for="language">Мова інтерфейсу</label>
-            <select v-model="settings.language" id="language">
-              <option value="uk">Українська</option>
-              <option value="en">Англійська</option>
-              <option value="ru">Російська</option>
-            </select>
+            <label for="carName">Назва авто</label>
+            <input type="text" id="carName" v-model="settings.carName" />
           </div>
           <div class="form-group">
-            <label for="unit">Одиниці вимірювання</label>
-            <select v-model="settings.unit" id="unit">
-              <option value="metric">Метрична система (км)</option>
-              <option value="imperial">Імперська система (миля)</option>
-            </select>
+            <label for="carPhoto">Фото авто</label>
+            <input
+              type="file"
+              id="carPhoto"
+              @change="handleFileChange('carPhoto')"
+            />
+          </div>
+          <div class="form-group">
+            <label for="techPassportPhoto">Фото техпаспорту</label>
+            <input
+              type="file"
+              id="techPassportPhoto"
+              @change="handleFileChange('techPassportPhoto')"
+            />
+          </div>
+          <div class="form-group">
+            <label for="licensePhoto">Фото водійського посвітчення</label>
+            <input
+              type="file"
+              id="licensePhoto"
+              @change="handleFileChange('licensePhoto')"
+            />
+          </div>
+          <div class="form-group">
+            <label for="insurancePhoto">Фото автоцивілка</label>
+            <input
+              type="file"
+              id="insurancePhoto"
+              @change="handleFileChange('insurancePhoto')"
+            />
           </div>
           <button type="submit">Зберегти</button>
         </form>
@@ -41,7 +62,6 @@
     </div>
   </div>
 </template>
-
 <script>
 export default {
   name: "SettingsView",
@@ -51,17 +71,27 @@ export default {
         username: "",
         email: "",
         notifications: true,
+        carName: "",
+        carPhoto: null,
+        techPassportPhoto: null,
+        licensePhoto: null,
+        insurancePhoto: null,
       },
     };
   },
   methods: {
+    handleFileChange(fieldName) {
+      const fileInput = this.$refs[fieldName];
+      const file = fileInput.files[0];
+      this.settings[fieldName] = file;
+    },
     saveSettings() {
-      alert("Налаштування збережено", this.settings);
+      console.log("Налаштування збережено", this.settings);
+      // Here you can handle the form submission, e.g., send the data to a server.
     },
   },
 };
 </script>
-
 <style scoped>
 .detail-view {
   font-family: Arial, sans-serif;
@@ -77,11 +107,13 @@ export default {
   font-size: 1.8rem;
   margin-bottom: 20px;
 }
+
 .form {
   padding: 8px 0 10px 10px;
   border-radius: 8px;
-  background-color: #37474f; /* Заливка картки */
+  background-color: #37474f;
 }
+
 .form-group {
   margin: 20px 10px 20px;
 }
@@ -93,7 +125,8 @@ label {
 }
 
 input[type="text"],
-input[type="email"] {
+input[type="email"],
+input[type="file"] {
   width: 70%;
   padding: 8px;
   box-sizing: border-box;
@@ -119,12 +152,12 @@ button {
   transition: background-color 0.3s, color 0.3s;
   cursor: pointer;
   font-weight: bold;
-  &:hover {
-    background-color: #4caf50;
-    color: white;
-  }
-  &:active {
-    background-color: #38833a;
-  }
+}
+button:hover {
+  background-color: #4caf50;
+  color: white;
+}
+button:active {
+  background-color: #38833a;
 }
 </style>

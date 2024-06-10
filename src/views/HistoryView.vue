@@ -2,18 +2,10 @@
   <div class="history-view">
     <h2>Історія замовлень</h2>
     <div class="inputs">
-      <ul v-if="orders.length">
-        <li
-          v-for="order in orders"
-          :key="
-            order.date + order.time + order.startLocation + order.endLocation
-          "
-        >
-          {{ order.date }} {{ order.time }} <br /><br />{{
-            order.startLocation
-          }}
-          -
-          {{ order.endLocation }}
+      <ul v-if="acceptedOrders.length">
+        <li v-for="order in acceptedOrders" :key="order.id">
+          {{ order.date }} {{ order.time }} <br /><br />
+          {{ order.startLocation }} - {{ order.endLocation }}
         </li>
       </ul>
       <p v-else>Тут будуть ваші замовлення</p>
@@ -22,14 +14,12 @@
 </template>
 
 <script>
-import { store } from "./store";
+import { mapGetters } from "vuex";
 
 export default {
   name: "HistoryView",
-  data() {
-    return {
-      orders: store.getOrders(),
-    };
+  computed: {
+    ...mapGetters(["acceptedOrders"]),
   },
 };
 </script>
@@ -56,19 +46,21 @@ export default {
   padding: 20px;
   border-radius: 5px;
 }
+
 .inputs {
   height: 100%;
   display: flex;
-  flex-direction: column; /* Вертикальне розташування */
-  overflow-y: auto; /* Додаємо вертикальну прокрутку */
-  padding: 20px; /* Додаємо відступи */
-  box-sizing: border-box; /* Встановлюємо box-sizing для правильного обчислення відступів */
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
   margin-bottom: 20px;
   border-radius: 5px;
-  background-color: #37474f; /* Заливка картки */
+  background-color: #37474f;
   cursor: pointer;
   transition: transform 0.3s;
 }
+
 .inputs p {
   text-align: center;
   color: #f4f4f4;

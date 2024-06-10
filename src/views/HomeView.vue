@@ -6,80 +6,27 @@
         v-for="place in places"
         :place="place"
         :key="place.id"
-        :userLocation="userLocation"
-        :map="this.map"
+        :map="map"
+        @orderAccepted="removeOrder"
       />
     </div>
   </section>
 </template>
 
 <script>
-import Card from "@/components/Card.vue";
+import Card from "../components/Card.vue";
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   name: "HomeView",
   components: {
     Card,
   },
-  data() {
-    return {
-      places: [
-        {
-          id: 0,
-          startLocation: "Ужгород, вул.Собранецька 160",
-          endLocation: "Перечин, вул.Гагаріна 10",
-          weight: "30",
-          cargo: "Піlдон з фруктами",
-          price: "550",
-          description:
-            "Піддон загрузять робітники, але вигрузку потрібно робити самому",
-        },
-        {
-          id: 1,
-          startLocation: "Ужгород, вул.Гойди 10",
-          endLocation: "Мукачево, вул.Духновича 10",
-          weight: "40",
-          cargo: "Будівельні матеріали",
-          price: "1030",
-          description:
-            "Транспортування важких будівельних матеріалів для нового будівництва в Мукачево.",
-        },
-        {
-          id: 2,
-          startLocation: "Ужгород,вул.Університетська 12",
-          endLocation: "Свалява, вул.Київська 1",
-          weight: "25",
-          cargo: "Скло пакети",
-          price: "1 627",
-          description:
-            "Перевезення крихких скло пакетів для монтажу в новому офісному центрі в Сваляві.",
-        },
-        {
-          id: 3,
-          startLocation: "Ужгород, вул.Минайська 10",
-          endLocation: "Берегово, вул.Стефаника 22",
-          weight: "40",
-          cargo: "Меблі",
-          price: "1 648",
-          description:
-            "Доставка меблів для облаштування нової квартири в Берегово.",
-        },
-        {
-          id: 4,
-          startLocation: "Ужгород, вул.Бабяка 48",
-          endLocation: "Великі Лучки, вул.Східна 4",
-          weight: "15",
-          cargo: "Пластикові труби",
-          price: "859",
-          description:
-            "Постачання пластикових труб для водопровідної системи в Великі Лучки.",
-        },
-      ],
-      map: null,
-      userLocation: { lat: null, lng: null },
-      userMarker: null,
-    };
+  computed: {
+    ...mapGetters(["places"]),
   },
   methods: {
+    ...mapActions(["removeOrder"]),
     initMap() {
       this.map = new google.maps.Map(document.getElementById("map"), {
         zoom: 18,
@@ -111,6 +58,13 @@ export default {
       }
     },
   },
+  data() {
+    return {
+      map: null,
+      userLocation: { lat: null, lng: null },
+      userMarker: null,
+    };
+  },
   mounted() {
     window.initMap = this.initMap;
     const script = document.createElement("script");
@@ -124,12 +78,14 @@ export default {
 
 <style scoped lang="scss">
 @import url("https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Reddit+Mono:wght@200..900&display=swap");
+
 .top_section {
   display: flex;
   align-items: center;
   width: 100%;
   max-width: 100vw;
   height: calc(100vh - 72px);
+
   .map {
     margin-left: 10px;
     flex: 1 1 60%;
@@ -140,6 +96,7 @@ export default {
     -moz-box-shadow: 5px -5px 25px -20px rgba(0, 0, 0, 0.75);
     box-shadow: 5px -5px 25px -20px rgba(0, 0, 0, 0.75);
   }
+
   .inputs {
     width: 40%;
     height: 100%;
@@ -156,7 +113,6 @@ export default {
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 20px;
-
     cursor: pointer;
   }
 }

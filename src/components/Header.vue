@@ -1,10 +1,10 @@
 <template>
   <header>
     <nav>
-      <router-link to="/">Home</router-link>
+      <router-link to="/">Головна</router-link>
       <router-link to="/history">Історія замовлень</router-link>
       <router-link to="/messages">Повідомлення</router-link>
-      <router-link to="/settings">Settings</router-link>
+      <router-link to="/settings">Налаштування</router-link>
     </nav>
   </header>
 </template>
@@ -15,7 +15,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped land="Sass">
 header {
   background-color: #2c3e50;
   color: white;
